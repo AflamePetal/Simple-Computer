@@ -115,7 +115,7 @@ int main()
                 int Opnd1 = atoi(parts[2]);
 
                 // Preparing the numbers for writing in binary form. Little tricky!
-                Inst1 = Inst1 << 16;  // 4 bits for instruction code
+                Inst1 = Inst1 << 16;
                 Bin = Opnd1 + Inst1; // For writing in 32 bits form we need to add these
             }
 
