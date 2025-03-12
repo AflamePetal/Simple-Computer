@@ -1,4 +1,4 @@
-# SSEM-Like-Computer
+# Simple-Computer
 This educational project is inspired by projects in the book "Computer Architecture" by Charles Fox. The original design though, is based on the SSEM(Manchester Baby) computer.
 
 The Assembler is written by me in both C and C++.(The one written in C is more readable)
