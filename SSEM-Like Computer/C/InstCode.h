@@ -1,3 +1,6 @@
+#ifndef INSTCODE_H
+#define INSTCODE_H
+
 #include <string.h>
 
 // Instructions and Opcodes
@@ -10,7 +13,11 @@
 #define ADD 6
 #define MUL 7
 #define DIV 8
-#define HLT 9
+#define NEG 9
+#define AND 10
+#define OR 11
+#define NOT 12
+#define HLT 13
 
 int getOpcode(const char *name)
 {
@@ -23,7 +30,12 @@ int getOpcode(const char *name)
     if (strcmp(name, "ADD") == 0) return ADD;
     if (strcmp(name, "MUL") == 0) return MUL;
     if (strcmp(name, "DIV") == 0) return DIV;
+    if (strcmp(name, "NEG") == 0) return NEG;
+    if (strcmp(name, "AND") == 0) return AND;
+    if (strcmp(name, "OR") == 0) return OR;
+    if (strcmp(name, "NOT") == 0) return NOT;
     if (strcmp(name, "HLT") == 0) return HLT;
     return -1; // Instruction's not found
-
 }
+
+#endif // INSTCODE_H

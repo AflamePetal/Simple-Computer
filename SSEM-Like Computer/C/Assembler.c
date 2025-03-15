@@ -1,11 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "InstCode.h"
-
-
-#define FILE_NAME "D:/Personal Data/Programming Projects/C/SSEM Computer/asmFiles/Add.asm" //Change it to the LOCATION\NAME of your file that you want to assemble
-
+#include "instcode.h"
 
 #define CHUNK_SIZE 256
 
@@ -14,7 +10,7 @@
 // This snippet is for printing an integer in its binary form
 #define _8_BIT_PATTERN "%c%c%c%c%c%c%c%c"
 #define INT_TO_BINARY(byte)          \
-        ((byte) & 0x80 ? '1' : '0'), \
+    ((byte) & 0x80 ? '1' : '0'),     \
         ((byte) & 0x40 ? '1' : '0'), \
         ((byte) & 0x20 ? '1' : '0'), \
         ((byte) & 0x10 ? '1' : '0'), \
@@ -32,38 +28,26 @@ void output(int num, FILE *txtFile)
     }
     else
     {
-        fprintf(txtFile, ""_8_BIT_PATTERN""_8_BIT_PATTERN""_8_BIT_PATTERN""_8_BIT_PATTERN"\n",
+        fprintf(txtFile, ""_8_BIT_PATTERN
+                         ""_8_BIT_PATTERN
+                         ""_8_BIT_PATTERN
+                         ""_8_BIT_PATTERN
+                         "\n",
                 INT_TO_BINARY(num16 >> 16), INT_TO_BINARY(num >> 16), INT_TO_BINARY(num >> 8), INT_TO_BINARY(num));
     }
 }
 
-char **strSplit(char *asmCode)
+int main(int argc, char *argv[])
 {
-    char *pos;
-    pos = strstr(asmCode, "--");
-    if (pos != NULL)
-        strncpy(pos, "\0", 1);
 
-    char *sPtr;
-    char **parts = malloc(3 * sizeof(char *));
-    int idx = 0;
-
-    sPtr = strtok(asmCode, " \r\n\t");
-    parts[idx++] = sPtr;
-    while (sPtr != NULL)
+    if (argc < 2)
     {
-        sPtr = strtok(NULL, " \r\n\t");
-        parts[idx++] = sPtr;
+        printf("Usage: %s <source .asm file>\n", argv[0]);
+        return 1;
     }
 
-    return parts;
-}
-
-int main()
-{
-
     FILE *asmFile;
-    asmFile = fopen(""FILE_NAME"", "rb");
+    asmFile = fopen(argv[1], "r");
     if (!asmFile)
     {
         printf("Can not open the .asm file\n");
@@ -81,49 +65,44 @@ int main()
     if (FOR_LOGISIM)
         fprintf(txtFile, "v2.0 raw\n");
 
-    unsigned char buffer[CHUNK_SIZE];
-    char *parts; // It will contain the parts of the code and not the comments
-    size_t bytesRead;
-
-    char ch = 0;
     char line[CHUNK_SIZE];
-    int idx = 0;
-    while (ch != EOF)
+    while (fgets(line, 256, asmFile) != NULL)
     {
         int Bin = 0;
 
-        ch = fgetc(asmFile);
-        line[idx++] = ch;
-        if (ch == '\n' || ch == EOF)
+        // IGNORE COMMENTS
+        char *comment_start = strstr(line, "--");
+        if (comment_start)
+            *comment_start = '\0';
+
+        // TOKENIZE
+        char **parts;
+        int index = 0;
+        parts[index++] = strtok(line, " \n\t");
+        while (parts[index] != NULL)
+            parts[index++] = strtok(NULL, " \n\t");
+
+
+        if (strcmp(parts[1], "NUM") == 0)
         {
-            line[idx] = '\0';
-            char **parts = strSplit(line);
-            char *str = parts[1];
-            if (strcmp(parts[1], "NUM") == 0)
-            {
-                int Code1 = atoi(parts[2]);
-                Bin = Code1;
-            }
-
-            else
-            {
-                int Inst1 = getOpcode(parts[1]);
-
-                if (parts[2] == NULL)
-                    parts[2] = "0";
-
-                int Opnd1 = atoi(parts[2]);
-
-                // Preparing the numbers for writing in binary form. Little tricky!
-                Inst1 = Inst1 << 16;
-                Bin = Opnd1 + Inst1; // For writing in 32 bits form we need to add these
-            }
-
-            output(Bin, txtFile);
-
-            idx = 0;
-            strcpy(line, " ");
+            int Code1 = atoi(parts[2]);
+            Bin = Code1;
         }
+        else
+        {
+            int Inst1 = getOpcode(parts[1]);
+
+            if (parts[2] == NULL)
+                parts[2] = "0";
+
+            int Opnd1 = atoi(parts[2]);
+
+            // Preparing the numbers for writing in binary form. Little tricky!
+            Inst1 = Inst1 << 16;
+            Bin = Opnd1 + Inst1; // For writing in 32 bits form we need to add these
+        }
+
+        output(Bin, txtFile);
     }
 
     return 0;
