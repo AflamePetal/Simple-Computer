@@ -1,0 +1,8 @@
+00: NUM 1
+01: LDN 6
+02: SUB 7
+03: SKN
+04: JMP 0
+05: HLT
+06: NUM 7
+07: NUM 4
